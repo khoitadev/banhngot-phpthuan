@@ -3,6 +3,7 @@ ob_start();
 include($_SERVER["DOCUMENT_ROOT"] . '/admin/inc/header.php');
 include($_SERVER['DOCUMENT_ROOT'] . "/admin/inc/navbar.php");
 include($_SERVER['DOCUMENT_ROOT'] . "/database/connect.php");
+require_once($_SERVER['DOCUMENT_ROOT'] . "/helpers/order_status.php");
 
 if (isset($_GET['id'])) {
     $id_order = $_GET['id'];
@@ -21,15 +22,39 @@ if (isset($_GET['id'])) {
     $products = mysqli_query($conn, $products_query);
 
     if (isset($_POST['submit'])) {
-        $status = $_POST['status'];
-        $query = "UPDATE oders set status = '$status' WHERE  OderId = '$id_order'";
-        $result = mysqli_query($conn, $query);
+        $newStatus = (int)$_POST['status'];
+        $oldStatus = (int)$order['status'];
+        $statusInfo = getOrderStatus($newStatus);
+        $adminName = isset($_SESSION['admin']) ? $_SESSION['admin']['Username'] : 'Admin';
+        
+        // Cập nhật status và các ngày tương ứng
+        $updateFields = ["status = '$newStatus'", "status_name = '" . mysqli_real_escape_string($conn, $statusInfo['name']) . "'", "status_updated_at = NOW()"];
+        
+        if ($newStatus == 2) { // Đang giao hàng
+            $updateFields[] = "shipping_date = NOW()";
+        } elseif ($newStatus == 3) { // Đã nhận hàng
+            $updateFields[] = "delivered_date = NOW()";
+        }
+        
+        $updateQuery = "UPDATE oders SET " . implode(", ", $updateFields) . " WHERE OderId = '$id_order'";
+        $result = mysqli_query($conn, $updateQuery);
+        
         if ($result) {
-            header("location: order_list.php");
+            // Lưu lịch sử thay đổi
+            $historyQuery = "INSERT INTO order_status_history (OderId, OldStatus, NewStatus, StatusName, ChangedBy, Note) 
+                            VALUES ('$id_order', '$oldStatus', '$newStatus', '" . mysqli_real_escape_string($conn, $statusInfo['name']) . "', 
+                                    '" . mysqli_real_escape_string($conn, $adminName) . "', 'Cập nhật bởi admin')";
+            mysqli_query($conn, $historyQuery);
+            
+            header("location: order_detail.php?id=$id_order");
+            exit;
         } else {
-            echo "xảy ra lỗi";
+            echo "<div class='alert alert-danger'>Xảy ra lỗi khi cập nhật!</div>";
         }
     }
+    
+    $statusInfo = getOrderStatus($order['status']);
+    $allStatuses = getAllOrderStatuses();
 }
 
 ?>
@@ -107,15 +132,16 @@ if (isset($_GET['id'])) {
                         <p>Địa chỉ nhận hàng: <?php echo $order['address'] ?></p>
                         <p>Ngày đặt hàng: <?php echo $order['order_date'] ?></p>
                         <p>Ghi chú của khách hàng: <?php echo $order['Note'] ?> </p>
-                        <p>Trạng thái đơn hàng:
-                            <?php if ($order['status'] == 0) { ?>
-                                Chưa duyệt
-                            <?php } else if ($order['status'] == 1) { ?>
-                                Đã duyệt
-                            <?php } else if ($order['status'] == 2) { ?>
-                                Thành công
-                            <?php } ?>
-                        </p>
+                        <p>Trạng thái đơn hàng: <?php echo getOrderStatusBadge($order['status']); ?></p>
+                        <?php if ($order['status_updated_at']) : ?>
+                            <p>Cập nhật lần cuối: <?php echo date('d/m/Y H:i', strtotime($order['status_updated_at'])); ?></p>
+                        <?php endif; ?>
+                        <?php if ($order['shipping_date']) : ?>
+                            <p>Ngày giao hàng: <?php echo date('d/m/Y H:i', strtotime($order['shipping_date'])); ?></p>
+                        <?php endif; ?>
+                        <?php if ($order['delivered_date']) : ?>
+                            <p>Ngày nhận hàng: <?php echo date('d/m/Y H:i', strtotime($order['delivered_date'])); ?></p>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>
@@ -160,16 +186,72 @@ if (isset($_GET['id'])) {
                     </table>
                 </div>
             </div>
-            <form method="POST">
-                <div class="form-group mt-4">
-                    <select name="status" id="" required>
-                        <option name="status" value="0">Chưa duyệt</option>
-                        <option name="status" value="1">Đã duyệt</option>
-                        <option name="status" value="2">Thành công</option>
-                    </select>
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5>Cập nhật trạng thái đơn hàng</h5>
                 </div>
-                <button class="mt-4 btn btn-primary" type="submit" name="submit">Cập nhật</button>
-            </form>
+                <div class="card-body">
+                    <form method="POST">
+                        <div class="form-group">
+                            <label for="status">Trạng thái:</label>
+                            <select name="status" id="status" class="form-control" required>
+                                <?php foreach ($allStatuses as $code => $name) : 
+                                    $selected = ($code == $order['status']) ? 'selected' : '';
+                                ?>
+                                    <option value="<?php echo $code; ?>" <?php echo $selected; ?>>
+                                        <?php echo htmlspecialchars($name); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <button class="btn btn-primary" type="submit" name="submit">
+                            <i class="fa fa-save"></i> Cập nhật trạng thái
+                        </button>
+                        <a href="order_list.php" class="btn btn-secondary">Quay lại</a>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Status History -->
+            <?php
+            $historyQuery = "SELECT * FROM order_status_history 
+                           WHERE OderId = '$id_order' 
+                           ORDER BY CreatedAt DESC";
+            $historyResult = mysqli_query($conn, $historyQuery);
+            if (mysqli_num_rows($historyResult) > 0) :
+            ?>
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5>Lịch sử thay đổi trạng thái</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Thời gian</th>
+                                    <th>Trạng thái cũ</th>
+                                    <th>Trạng thái mới</th>
+                                    <th>Người thay đổi</th>
+                                    <th>Ghi chú</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php while ($history = mysqli_fetch_assoc($historyResult)) : ?>
+                                    <tr>
+                                        <td><?php echo date('d/m/Y H:i', strtotime($history['CreatedAt'])); ?></td>
+                                        <td><?php echo getOrderStatus($history['OldStatus'])['name']; ?></td>
+                                        <td><strong><?php echo htmlspecialchars($history['StatusName']); ?></strong></td>
+                                        <td><?php echo htmlspecialchars($history['ChangedBy']); ?></td>
+                                        <td><?php echo htmlspecialchars($history['Note']); ?></td>
+                                    </tr>
+                                <?php endwhile; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <?php endif; ?>
         </div>
     </div>
     <?php

@@ -31,10 +31,11 @@ $user = ((isset($_SESSION['user']))) ? $_SESSION['user'] : [];
     <link rel="stylesheet" href="css/magnific-popup.css" type="text/css">
     <link rel="stylesheet" href="css/font-awesome.min.css" type="text/css">
     <link rel="stylesheet" href="css/elegant-icons.css" type="text/css">
-    <link rel="stylesheet" href="css/nice-selec.css" type="text/css">
+    <link rel="stylesheet" href="css/nice-select.css" type="text/css">
     <link rel="stylesheet" href="css/owl.carousel.min.css" type="text/css">
     <link rel="stylesheet" href="css/slickna.min.css" type="text/css">
     <link rel="stylesheet" href="css/styllee.css" type="text/css">
+    <link rel="stylesheet" href="css/chatbot.css" type="text/css">
 </head>
 
 <body>
@@ -81,7 +82,7 @@ $user = ((isset($_SESSION['user']))) ? $_SESSION['user'] : [];
     <!-- Offcanvas Menu End -->
 
     <!-- Header Section Begin -->
-    <header class="header" >
+    <header class="header">
         <div class="header__top">
             <div class="container">
                 <div class="row">
@@ -89,38 +90,37 @@ $user = ((isset($_SESSION['user']))) ? $_SESSION['user'] : [];
                         <div class="header__top__inner">
                             <div class="header__top__left">
                             </div>
-                            <div class="header__logo" style="left: 5%;" >
-                                <a href="#"><img src="img/11.JPG" alt="" ></a>
+                            <div class="header__logo" style="left: 5%;">
+                                <a href="#"><img src="img/11.JPG" alt=""></a>
                             </div>
                             <div class="header__top__right">
-                                
+
                                 <div class="header__top__left">
-                                <ul style="margin-right: 30px;">
-                                <?php if (isset($user['Email'])) { ?>
-                                    <li><?php echo $user['Fullname'] ?>
-                                            <ul>
-                                                <li><a style="color:#ffffff; white-space: nowrap;" href="history_order.php">Lịch sử đơn hàng </a></li>
-                                                <li><a style="color:#ffffff; white-space: nowrap;" href="logout.php">Đăng xuất</a></li>
-                                            </ul>
-                                    </li><?php } else { ?><li>
-                                        Tài khoản
+                                    <ul style="margin-right: 30px;">
+                                        <?php if (isset($user['Email'])) { ?>
+                                            <li><?php echo $user['Fullname'] ?>
+                                                <ul>
+                                                    <li><a style="color:#ffffff; white-space: nowrap;" href="logout.php">Đăng xuất</a></li>
+                                                </ul>
+                                            </li><?php } else { ?><li>
+                                                Tài khoản
                                                 <ul>
                                                     <li><a href="register.php" style="color:#ffffff; white-space: nowrap;">Đăng ký </a></li>
                                                     <li><a href="login.php" style="color:#ffffff; white-space: nowrap;">Đăng nhập </a></li>
                                                 </ul>
                                             </li>
                                         <?php } ?>
-                                </ul>
+                                    </ul>
                                 </div>
                                 <div class="header__top__right__cart">
                                     <a href="view_cart.php"><img src="img/icon/cart.png" alt=""> <span>0</span></a>
                                     <div class="cart__price">(<?php echo count($cart) ?>)
-                                   
-                                </div>
+
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div> 
+                    </div>
                 </div>
                 <div class="canvas__open"><i class="fa fa-bars"></i></div>
             </div>
@@ -132,7 +132,9 @@ $user = ((isset($_SESSION['user']))) ? $_SESSION['user'] : [];
                         <ul>
                             <li><a href="./index.php">Trang chủ</a></li>
                             <li><a href="./list_product.php">Cửa hàng</a></li>
-                            <li><a href="./view_cart.php">Xem giỏ hàng</a> </li>
+                            <li><a href="./promotions.php">Khuyến mãi</a></li>
+                            <li><a href="./news.php">Tin tức</a></li>
+                            <li><a href="./history_order.php">Lịch sử đơn hàng</a> </li>
                             <li><a href="./contact_add.php">Liên hệ</a></li>
                         </ul>
                     </nav>

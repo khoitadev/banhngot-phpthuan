@@ -59,21 +59,92 @@
     });
 
     /*-----------------------
-        Hero Slider
+        Hero Slider - Smooth Transition with Manual Autoplay
     ------------------------*/
-    $(".hero__slider").owlCarousel({
-        loop: true,
-        margin: 0,
-        items: 1,
-        dots: false,
-        nav: true,
-        navText: ["<i class='fa fa-angle-left'><i/>", "<i class='fa fa-angle-right'><i/>"],
-        animateOut: 'fadeOut',
-        animateIn: 'fadeIn',
-        smartSpeed: 1200,
-        autoHeight: false,
-        autoplay: false
-    });
+    var heroSlider = $(".hero__slider");
+    var heroAutoplayInterval = null;
+    var heroIsPaused = false;
+    
+    if (heroSlider.length) {
+        // Initialize slider WITHOUT autoplay (we'll handle it manually)
+        heroSlider.owlCarousel({
+            loop: true,
+            margin: 0,
+            items: 1,
+            dots: true,
+            nav: true,
+            navText: ["<i class='fa fa-angle-left'></i>", "<i class='fa fa-angle-right'></i>"],
+            animateOut: 'fadeOut',
+            animateIn: 'fadeIn',
+            smartSpeed: 1000,
+            autoHeight: false,
+            autoplay: false,
+            navSpeed: 1000,
+            dotsSpeed: 1000,
+            mouseDrag: true,
+            touchDrag: true,
+            pullDrag: true
+        });
+        
+        // Manual autoplay function - SIMPLE AND RELIABLE
+        function startHeroAutoplay() {
+            // Clear any existing interval first
+            if (heroAutoplayInterval) {
+                clearInterval(heroAutoplayInterval);
+                heroAutoplayInterval = null;
+            }
+            
+            // Reset pause flag
+            heroIsPaused = false;
+            
+            // Start new interval - this will trigger after 5 seconds
+            heroAutoplayInterval = setInterval(function() {
+                if (!heroIsPaused && heroSlider.length && heroSlider.data('owl.carousel')) {
+                    try {
+                        // Trigger next slide
+                        heroSlider.trigger('next.owl.carousel', [1000]); // 1 second transition
+                    } catch(e) {
+                        console.log('Autoplay error:', e);
+                    }
+                }
+            }, 5000); // 5 seconds between slides (each slide shows for 5 seconds)
+        }
+        
+        // Start autoplay when slider is ready
+        heroSlider.on('initialized.owl.carousel', function() {
+            setTimeout(function() {
+                startHeroAutoplay();
+            }, 1000);
+        });
+        
+        // Pause on hover
+        heroSlider.on('mouseenter', function() {
+            heroIsPaused = true;
+        });
+        
+        // Resume on mouse leave
+        heroSlider.on('mouseleave', function() {
+            heroIsPaused = false;
+        });
+        
+        // Fallback: Start autoplay after 2 seconds regardless
+        setTimeout(function() {
+            if (heroSlider.data('owl.carousel')) {
+                if (!heroAutoplayInterval) {
+                    startHeroAutoplay();
+                }
+            }
+        }, 2500);
+        
+        // Additional fallback: Start autoplay after page load
+        $(window).on('load', function() {
+            setTimeout(function() {
+                if (heroSlider.data('owl.carousel') && !heroAutoplayInterval) {
+                    startHeroAutoplay();
+                }
+            }, 3000);
+        });
+    }
 
     /*--------------------------
         Categories Slider

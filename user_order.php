@@ -27,7 +27,8 @@ if(isset($_POST['submit'])){
             $result = mysqli_query($conn,$insert_order_detail);
         }
         unset($_SESSION['cart']);
-        header("Location: index.php");
+        header("Location: order_success.php");
+        exit();
     }else{
         echo "<script>alert(`Thanh toán thất bại`) </script>"; 
     }

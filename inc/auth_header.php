@@ -28,6 +28,7 @@ session_start();
     <link rel="stylesheet" href="css/owl.carousel.min.css" type="text/css">
     <link rel="stylesheet" href="css/slickna.min.css" type="text/css">
     <link rel="stylesheet" href="css/styllee.css" type="text/css">
+    <link rel="stylesheet" href="css/chatbot.css" type="text/css">
 </head>
 
 <body>
@@ -91,7 +92,12 @@ session_start();
                 <div class="col-lg-12">
                     <nav class="header__menu mobile-menu">
                         <ul>
-                            <li></li>
+                            <li><a href="./index.php">Trang chủ</a></li>
+                            <li><a href="./list_product.php">Cửa hàng</a></li>
+                            <li><a href="./promotions.php">Khuyến mãi</a></li>
+                            <li><a href="./news.php">Tin tức</a></li>
+                            <li><a href="./history_order.php">Lịch sử đơn hàng</a></li>
+                            <li><a href="./contact_add.php">Liên hệ</a></li>
                         </ul>
                     </nav>
                 </div>

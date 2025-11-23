@@ -70,6 +70,25 @@
 </div>
 <!-- Search End -->
 
+<!-- Chatbot -->
+<div id="chatbot-panel" class="chatbot-panel">
+    <div class="chatbot-header">
+        <strong>Bánh Ngọt Bot</strong>
+        <p style="margin: 4px 0 0; font-size: 12px;">Hỏi tôi về giờ mở cửa, giao hàng...</p>
+    </div>
+    <div id="chatbot-messages" class="chatbot-messages">
+        <div class="chatbot-message bot">Xin chào! Tôi có thể giúp gì cho bạn?</div>
+    </div>
+    <form id="chatbot-form" class="chatbot-input">
+        <input id="chatbot-input" type="text" placeholder="Nhập câu hỏi..." autocomplete="off">
+        <button type="submit">Gửi</button>
+    </form>
+</div>
+<button id="chatbot-launcher" class="chatbot-launcher">
+    <i class="fa fa-comments-o" aria-hidden="true"></i>
+</button>
+<!-- End Chatbot -->
+
 <!-- Js Plugins -->
 <script src="js/jquery-3.3.1.min.js"></script>
 <script src="js/bootstrap.min.js"></script>
@@ -80,6 +99,9 @@
 <script src="js/owl.carousel.min.js"></script>
 <script src="js/jquery.nicescroll.min.js"></script>
 <script src="js/main.js"></script>
+<!-- hero-autoplay.js disabled - using main.js autoplay only to avoid conflicts -->
+<!-- <script src="js/hero-autoplay.js"></script> -->
+<script src="js/chatbot.js"></script>
 </body>
 
 </html>

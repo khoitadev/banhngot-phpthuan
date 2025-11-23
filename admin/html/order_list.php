@@ -2,6 +2,7 @@
 include($_SERVER["DOCUMENT_ROOT"] . '/admin/inc/header.php');
 include($_SERVER['DOCUMENT_ROOT'] . "/admin/inc/navbar.php");
 include($_SERVER['DOCUMENT_ROOT'] . "/database/connect.php");
+require_once($_SERVER['DOCUMENT_ROOT'] . "/helpers/order_status.php");
 
 $query = "SELECT o.OderId, o.number_phone, o.order_date, o.note, o.address, c.Fullname, o.total_price, o.status
           FROM oders o, Customers c where o.CustomerId = c.CustomerId order by total_price";
@@ -114,16 +115,7 @@ $Orders = mysqli_query($conn, $query2);
                   <td><?php echo $value['order_date'] ?></td>
 
                   <td>
-
-                    <?php  if($value['status'] == 0) {?>
-                      <span class="label bg-red">Chưa duyệt</span>
-                      <?php } else if($value['status']== 1) {?>
-                        <span class="label bg-red">Đã duyệt</span>
-                        <?php } else if($value['status']== 2) {?>
-                        <span class="label bg-red">Thành công</span>
-                        <?php } else if($value['status']== 3) {?>
-                        <span class="label bg-red">Đã giao hàng</span>
-                        <?php } ?>
+                    <?php echo getOrderStatusBadge($value['status']); ?>
                   </td>
                   <td>
                     <button type="button" class="btn btn-primary">

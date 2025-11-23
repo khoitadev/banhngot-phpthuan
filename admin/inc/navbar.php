@@ -90,6 +90,24 @@
               <i class="menu-icon tf-icons bx bx-table"></i>
               <div data-i18n="Basic">Liên lạc</div>
             </a>
+          </li>
+          <li class="menu-item">
+            <a href="review_list.php" class="menu-link">
+              <i class="menu-icon tf-icons bx bx-star"></i>
+              <div data-i18n="Basic">Đánh giá</div>
+            </a>
+          </li>
+          <li class="menu-item">
+            <a href="promotion_list.php" class="menu-link">
+              <i class="menu-icon tf-icons bx bx-gift"></i>
+              <div data-i18n="Basic">Khuyến mãi</div>
+            </a>
+          </li>
+          <li class="menu-item">
+            <a href="news_list.php" class="menu-link">
+              <i class="menu-icon tf-icons bx bx-news"></i>
+              <div data-i18n="Basic">Tin tức</div>
+            </a>
           </li>    
             </ul>
           </li>
