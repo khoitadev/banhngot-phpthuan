@@ -74,7 +74,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
     
     if (mysqli_query($conn, $query)) {
-        header("Location: news_list.php");
+        echo '<script>window.location.href = "news_list.php";</script>';
         exit;
     } else {
         $error = "Có lỗi xảy ra: " . mysqli_error($conn);

@@ -87,7 +87,7 @@ function getAllOrderStatuses() {
  */
 function getOrderStatusBadge($status) {
     $statusInfo = getOrderStatus($status);
-    return '<span class="badge badge-' . $statusInfo['class'] . '">' . $statusInfo['name'] . '</span>';
+    return '<span class="badge badge-text badge-' . $statusInfo['class'] . '">' . $statusInfo['name'] . '</span>';
 }
 
 /**

@@ -4205,6 +4205,11 @@ textarea.form-control-lg {
   vertical-align: baseline;
   border-radius: 0.25rem;
 }
+
+.badge-text {
+  color: #697a8d;
+}
+
 .badge:empty {
   display: none;
 }

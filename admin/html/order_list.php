@@ -5,7 +5,7 @@ include($_SERVER['DOCUMENT_ROOT'] . "/database/connect.php");
 require_once($_SERVER['DOCUMENT_ROOT'] . "/helpers/order_status.php");
 
 $query = "SELECT o.OderId, o.number_phone, o.order_date, o.note, o.address, c.Fullname, o.total_price, o.status
-          FROM oders o, Customers c where o.CustomerId = c.CustomerId order by total_price";
+          FROM oders o, Customers c where o.CustomerId = c.CustomerId order by o.order_date";
 
 $Orders = mysqli_query($conn, $query);
 
@@ -20,7 +20,7 @@ $cr_page = (isset($_GET['page']) ? $_GET['page'] : 1);
 $start = ($cr_page - 1) * $limit;
 
 $query2 = "SELECT o.OderId, o.number_phone, o.order_date, o.note, o.address, c.Fullname, o.total_price, o.status
-            FROM oders o, Customers c where o.CustomerId = c.CustomerId order by total_price desc LIMIT $start,$limit";
+            FROM oders o, Customers c where o.CustomerId = c.CustomerId order by o.order_date desc LIMIT $start,$limit";
 
 $Orders = mysqli_query($conn, $query2);
 

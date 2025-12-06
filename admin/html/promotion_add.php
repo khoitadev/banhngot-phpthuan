@@ -76,7 +76,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
     
     if (mysqli_query($conn, $query)) {
-        header("Location: promotion_list.php");
+        echo '<script>window.location.href = "promotion_list.php";</script>';
         exit;
     } else {
         $error = "Có lỗi xảy ra: " . mysqli_error($conn);

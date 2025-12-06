@@ -42,9 +42,6 @@ $Orders = mysqli_query($conn, $query);
 
 ?>
 <body>
-<?php
- include($_SERVER['DOCUMENT_ROOT'] . "/admin/inc/navbar.php");
-?>
       <!-- Layout container -->
       <div class="layout-page">
         <!-- Navbar -->
