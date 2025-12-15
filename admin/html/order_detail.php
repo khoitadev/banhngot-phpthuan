@@ -191,7 +191,7 @@ if (isset($_GET['id'])) {
                     <h5>Cập nhật trạng thái đơn hàng</h5>
                 </div>
                 <div class="card-body">
-                    <form method="POST">
+            <form method="POST">
                         <div class="form-group">
                             <label for="status">Trạng thái:</label>
                             <select name="status" id="status" class="form-control" required>
@@ -202,7 +202,7 @@ if (isset($_GET['id'])) {
                                         <?php echo htmlspecialchars($name); ?>
                                     </option>
                                 <?php endforeach; ?>
-                            </select>
+                    </select>
                         </div>
                         <button class="btn btn-primary" type="submit" name="submit">
                             <i class="fa fa-save"></i> Cập nhật trạng thái
