@@ -31,8 +31,8 @@ $customerId = isset($_SESSION['user']) ? $_SESSION['user']['CustomerId'] : null;
 $class = new Cart();
 $cartTotal = $class->total_price($cart);
 
-// Validate coupon
-$coupon = validateCoupon($couponCode, $cartTotal, $customerId);
+// Validate coupon (pass cart for product restriction check)
+$coupon = validateCoupon($couponCode, $cartTotal, $customerId, $cart);
 
 if ($coupon === false) {
     $response['message'] = 'Mã giảm giá không hợp lệ hoặc đã hết hạn';

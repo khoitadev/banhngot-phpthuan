@@ -16,24 +16,45 @@ $class = new Cart();
 $cart_totals = $class->total_price($cart);
 
 // Handle coupon from URL parameter
-if (isset($_GET['coupon']) && !isset($_SESSION['applied_coupon'])) {
+// If new coupon code is provided, replace the old one
+if (isset($_GET['coupon'])) {
     $couponCode = strtoupper(trim($_GET['coupon']));
-    require_once($_SERVER['DOCUMENT_ROOT'] . "/helpers/coupon_helper.php");
-    $customerId = isset($_SESSION['user']) ? $_SESSION['user']['CustomerId'] : null;
-    $coupon = validateCoupon($couponCode, $cart_totals, $customerId);
 
-    if ($coupon !== false && !isset($coupon['error'])) {
-        $discountInfo = calculateCouponDiscount($coupon, $cart_totals);
+    // Check if it's a different coupon code
+    $isNewCoupon = true;
+    if (isset($_SESSION['applied_coupon'])) {
+        $oldCouponCode = strtoupper(trim($_SESSION['applied_coupon']['code']));
+        if ($oldCouponCode === $couponCode) {
+            $isNewCoupon = false; // Same coupon, don't re-validate
+        } else {
+            // Different coupon, remove old one
+            unset($_SESSION['applied_coupon']);
+        }
+    }
 
-        // Use PromotionId from promotions table
-        $couponId = $coupon['PromotionId'];
+    // Apply new coupon if it's different
+    if ($isNewCoupon) {
+        require_once($_SERVER['DOCUMENT_ROOT'] . "/helpers/coupon_helper.php");
+        $customerId = isset($_SESSION['user']) ? $_SESSION['user']['CustomerId'] : null;
+        $cart = isset($_SESSION['cart']) ? $_SESSION['cart'] : [];
+        $coupon = validateCoupon($couponCode, $cart_totals, $customerId, $cart);
 
-        $_SESSION['applied_coupon'] = [
-            'code' => $couponCode,
-            'id' => $couponId,
-            'discount' => $discountInfo['discount'],
-            'final_total' => $discountInfo['final_total']
-        ];
+        if ($coupon !== false && !isset($coupon['error'])) {
+            $discountInfo = calculateCouponDiscount($coupon, $cart_totals);
+
+            // Use PromotionId from promotions table
+            $couponId = $coupon['PromotionId'];
+
+            $_SESSION['applied_coupon'] = [
+                'code' => $couponCode,
+                'id' => $couponId,
+                'discount' => $discountInfo['discount'],
+                'final_total' => $discountInfo['final_total']
+            ];
+        } else {
+            // Invalid coupon, make sure old one is removed
+            unset($_SESSION['applied_coupon']);
+        }
     }
 }
 

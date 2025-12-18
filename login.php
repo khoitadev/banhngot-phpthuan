@@ -28,7 +28,8 @@ if (isset($_POST['submit'])) {
             $_SESSION['user'] = $data;
             if (isset($_GET['action'])) {
                 $action = $_GET['action'];
-                header('location:' . $action . '.php');
+                // header('location:' . $action . '.php');
+                echo '<script>window.location.href = "' . $action . '.php";</script>';
             } else {
 
                 echo '<script>window.location.href = "index.php";</script>';
@@ -50,6 +51,9 @@ if (isset($_POST['submit'])) {
                 <div class="col-lg-6">
                     <div class="class__sidebar">
                         <h5 style="font-family: Callephane; margin-left: 200px;"><img src="img/logo_2.png" alt="">Đăng nhập</h5>
+                        <?php if (isset($_GET['registered']) && $_GET['registered'] == 1) { ?>
+                            <span class="success">Đăng ký thành công. Vui lòng đăng nhập.</span>
+                        <?php } ?>
                         <form method="POST">
                             <input required type="text" placeholder="Nhập email của bạn" name="Email">
                             <span class="mt-4 mb-4"><?php echo (isset($err['Email'])) ? $err['Email'] : ''; ?></span>
@@ -59,7 +63,7 @@ if (isset($_POST['submit'])) {
 
                             <button type="submit" name="submit" class="site-btn">Đăng nhập</button>
                             <button class="site-btn mt-4">
-                                <a style="color:while" href="register.php">Đăng ký</a>
+                                <a style="color:white" href="register.php">Đăng ký</a>
                             </button>
                         </form>
                     </div>

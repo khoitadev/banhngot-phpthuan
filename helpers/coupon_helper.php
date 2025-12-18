@@ -8,9 +8,10 @@
  * @param string $code Coupon code
  * @param float $cartTotal Total cart amount
  * @param int $customerId Customer ID (optional, for user limit check)
+ * @param array $cart Cart items array (optional, for product restriction check)
  * @return array|false Returns coupon data if valid, false otherwise
  */
-function validateCoupon($code, $cartTotal = 0, $customerId = null) {
+function validateCoupon($code, $cartTotal = 0, $customerId = null, $cart = []) {
     global $conn;
     
     if (empty($code)) {
@@ -88,6 +89,57 @@ function validateCoupon($code, $cartTotal = 0, $customerId = null) {
     if (isset($coupon['MinPurchase']) && $cartTotal < $coupon['MinPurchase']) {
         $minPurchaseFormatted = number_format($coupon['MinPurchase'], 0, ',', '.');
         return ['error' => "Đơn hàng tối thiểu {$minPurchaseFormatted} VND để sử dụng mã này"];
+    }
+    
+    // Check if promotion has specific products assigned
+    $promotionId = $coupon['PromotionId'];
+    $checkProductsQuery = "SELECT COUNT(*) as count FROM promotion_products WHERE PromotionId = ?";
+    $checkProductsStmt = mysqli_prepare($conn, $checkProductsQuery);
+    mysqli_stmt_bind_param($checkProductsStmt, "i", $promotionId);
+    mysqli_stmt_execute($checkProductsStmt);
+    $productsResult = mysqli_stmt_get_result($checkProductsStmt);
+    $productsData = mysqli_fetch_assoc($productsResult);
+    mysqli_stmt_close($checkProductsStmt);
+    
+    // If promotion has specific products assigned, check if cart contains at least one
+    if ($productsData['count'] > 0) {
+        if (empty($cart) || !is_array($cart)) {
+            return ['error' => 'Mã giảm giá này chỉ áp dụng cho các sản phẩm được chỉ định. Vui lòng thêm sản phẩm vào giỏ hàng.'];
+        }
+        
+        // Get product IDs from cart
+        $cartProductIds = [];
+        foreach ($cart as $item) {
+            if (isset($item['id']) || isset($item['ProductId'])) {
+                $productId = isset($item['id']) ? (int)$item['id'] : (int)$item['ProductId'];
+                $cartProductIds[] = $productId;
+            }
+        }
+        
+        if (empty($cartProductIds)) {
+            return ['error' => 'Mã giảm giá này chỉ áp dụng cho các sản phẩm được chỉ định. Vui lòng thêm sản phẩm vào giỏ hàng.'];
+        }
+        
+        // Check if any cart product is in promotion_products
+        // Sanitize product IDs
+        $sanitizedProductIds = array_map('intval', $cartProductIds);
+        $productIdsStr = implode(',', $sanitizedProductIds);
+        
+        // Use direct query with sanitized IDs (already validated as integers)
+        $checkCartProductsQuery = "SELECT COUNT(*) as count 
+                                   FROM promotion_products 
+                                   WHERE PromotionId = $promotionId AND ProductId IN ($productIdsStr)";
+        $cartProductsResult = mysqli_query($conn, $checkCartProductsQuery);
+        
+        if (!$cartProductsResult) {
+            return ['error' => 'Có lỗi xảy ra khi kiểm tra sản phẩm'];
+        }
+        
+        $cartProductsData = mysqli_fetch_assoc($cartProductsResult);
+        
+        if ($cartProductsData['count'] == 0) {
+            return ['error' => 'Mã giảm giá này chỉ áp dụng cho các sản phẩm được chỉ định trong khuyến mãi. Vui lòng kiểm tra lại giỏ hàng của bạn.'];
+        }
     }
     
     return $coupon;

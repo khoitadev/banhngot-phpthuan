@@ -272,6 +272,19 @@ if (isset($_GET['id'])) {
                                     $reviewImages[] = $img['ImagePath'];
                                 }
                             }
+
+                            // Kiểm tra xem user đã bấm "Hữu ích" chưa
+                            $isHelpful = false;
+                            if (isset($_SESSION['user']['CustomerId'])) {
+                                $customerId = $_SESSION['user']['CustomerId'];
+                                $checkHelpfulQuery = "SELECT HelpfulId FROM review_helpful 
+                                                      WHERE ReviewId = " . (int)$review['ReviewId'] . " 
+                                                      AND CustomerId = $customerId";
+                                $checkHelpfulResult = @mysqli_query($conn, $checkHelpfulQuery);
+                                if ($checkHelpfulResult && mysqli_num_rows($checkHelpfulResult) > 0) {
+                                    $isHelpful = true;
+                                }
+                            }
                         ?>
                             <div class="review-item">
                                 <div class="review-header">
@@ -315,9 +328,19 @@ if (isset($_GET['id'])) {
                                 <?php endif; ?>
 
                                 <div class="review-footer">
-                                    <button class="btn-helpful" data-review-id="<?php echo $review['ReviewId']; ?>">
-                                        <i class="fa fa-thumbs-up"></i> Hữu ích (<?php echo $review['HelpfulCount']; ?>)
-                                    </button>
+                                    <?php if (isset($_SESSION['user'])) : ?>
+                                        <button class="btn-helpful <?php echo $isHelpful ? 'active' : ''; ?>"
+                                            data-review-id="<?php echo $review['ReviewId']; ?>"
+                                            data-helpful-count="<?php echo $review['HelpfulCount']; ?>">
+                                            <i class="fa fa-thumbs-up"></i>
+                                            <span class="helpful-text"><?php echo $isHelpful ? 'Đã đánh dấu' : 'Hữu ích'; ?></span>
+                                            (<span class="helpful-count"><?php echo $review['HelpfulCount']; ?></span>)
+                                        </button>
+                                    <?php else : ?>
+                                        <button class="btn-helpful" disabled title="Đăng nhập để đánh dấu hữu ích">
+                                            <i class="fa fa-thumbs-up"></i> Hữu ích (<?php echo $review['HelpfulCount']; ?>)
+                                        </button>
+                                    <?php endif; ?>
                                 </div>
                             </div>
                         <?php endwhile; ?>
@@ -526,11 +549,31 @@ if (isset($_GET['id'])) {
         padding: 5px 10px;
         border-radius: 4px;
         transition: all 0.3s;
+        font-size: 14px;
     }
 
-    .btn-helpful:hover {
+    .btn-helpful:hover:not(:disabled) {
         background: #f0f0f0;
         color: #f08632;
+    }
+
+    .btn-helpful.active {
+        color: #f08632;
+        font-weight: 600;
+    }
+
+    .btn-helpful.active i {
+        color: #f08632;
+    }
+
+    .btn-helpful:disabled {
+        cursor: not-allowed;
+        opacity: 0.6;
+    }
+
+    .btn-helpful.loading {
+        opacity: 0.6;
+        cursor: wait;
     }
 
     .no-reviews {
@@ -540,6 +583,78 @@ if (isset($_GET['id'])) {
         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     }
 </style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Xử lý click nút "Hữu ích"
+        const helpfulButtons = document.querySelectorAll('.btn-helpful:not(:disabled)');
+
+        helpfulButtons.forEach(function(button) {
+            button.addEventListener('click', function() {
+                const reviewId = this.getAttribute('data-review-id');
+                const countElement = this.querySelector('.helpful-count');
+                const currentCount = countElement ? parseInt(countElement.textContent) || 0 : 0;
+                const isActive = this.classList.contains('active');
+
+                // Không cho phép click nhiều lần khi đang xử lý
+                if (this.classList.contains('loading')) {
+                    return;
+                }
+
+                // Hiển thị trạng thái loading
+                this.classList.add('loading');
+                const originalHTML = this.innerHTML;
+
+                // Gọi AJAX
+                const formData = new FormData();
+                formData.append('review_id', reviewId);
+
+                fetch('mark_review_helpful.php', {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        this.classList.remove('loading');
+
+                        if (data.success) {
+                            // Cập nhật số lượng
+                            const countElement = this.querySelector('.helpful-count');
+                            if (countElement) {
+                                countElement.textContent = data.helpful_count;
+                            }
+
+                            // Cập nhật trạng thái
+                            const textElement = this.querySelector('.helpful-text');
+                            if (textElement) {
+                                textElement.textContent = data.is_helpful ? 'Đã đánh dấu' : 'Hữu ích';
+                            }
+
+                            // Toggle class active
+                            if (data.is_helpful) {
+                                this.classList.add('active');
+                            } else {
+                                this.classList.remove('active');
+                            }
+
+                            // Hiển thị thông báo (tùy chọn)
+                            // console.log(data.message);
+                        } else {
+                            // Hiển thị lỗi
+                            alert(data.message || 'Có lỗi xảy ra');
+                            this.innerHTML = originalHTML;
+                        }
+                    })
+                    .catch(error => {
+                        this.classList.remove('loading');
+                        console.error('Error:', error);
+                        alert('Có lỗi xảy ra khi kết nối server');
+                        this.innerHTML = originalHTML;
+                    });
+            });
+        });
+    });
+</script>
 
 <?php
 include($_SERVER["DOCUMENT_ROOT"] . '//inc/footer.php');
