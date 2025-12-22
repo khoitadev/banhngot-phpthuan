@@ -145,13 +145,16 @@ if (isset($_POST['submit'])) {
         }
 
         // Send email in background (after redirect) - don't block user
-        // Load Composer's autoloader
-        require '..//PHPMailer/src/Exception.php';
-        require '..//PHPMailer/src/PHPMailer.php';
-        require '..//PHPMailer/src/SMTP.php';
+        // Load PHPMailer classes
+        $phpmailerPath = $_SERVER['DOCUMENT_ROOT'] . '/PHPMailer/src/';
+        if (file_exists($phpmailerPath . 'Exception.php')) {
+            require_once $phpmailerPath . 'Exception.php';
+            require_once $phpmailerPath . 'PHPMailer.php';
+            require_once $phpmailerPath . 'SMTP.php';
+        }
 
         // Instantiation and passing `true` enables exceptions
-        $mail = new PHPMailer(true);
+        $mail = new \PHPMailer\PHPMailer\PHPMailer(true);
 
         try {
             $mail->SMTPSecure = "ssl";
@@ -177,7 +180,7 @@ if (isset($_POST['submit'])) {
             $mail->Body    = $content;
             $mail->AltBody = 'This is the body in plain text for non-HTML mail clients';
             $mail->send();
-        } catch (Exception $e) {
+        } catch (\PHPMailer\PHPMailer\Exception $e) {
             // Email failed - log but don't stop order
             error_log("Email sending failed: {$mail->ErrorInfo}");
         }
