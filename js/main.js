@@ -42,11 +42,19 @@
     $(".canvas__open").on('click', function () {
         $(".offcanvas-menu-wrapper").addClass("active");
         $(".offcanvas-menu-overlay").addClass("active");
+        $("body").css("overflow", "hidden");
     });
 
     $(".offcanvas-menu-overlay").on('click', function () {
         $(".offcanvas-menu-wrapper").removeClass("active");
         $(".offcanvas-menu-overlay").removeClass("active");
+        $("body").css("overflow", "");
+    });
+
+    $(".offcanvas__close").on('click', function () {
+        $(".offcanvas-menu-wrapper").removeClass("active");
+        $(".offcanvas-menu-overlay").removeClass("active");
+        $("body").css("overflow", "");
     });
 
 

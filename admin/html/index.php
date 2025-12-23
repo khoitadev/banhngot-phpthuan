@@ -439,11 +439,11 @@ $pie_chart_colors_json = json_encode($pie_chart_colors, JSON_HEX_TAG | JSON_HEX_
               <div class="col-12 mb-4">
                 <div class="card">
                   <div class="card-body">
-                    <div class="d-flex justify-content-between flex-sm-row flex-column gap-3">
-                      <div class="d-flex flex-sm-column flex-row align-items-start justify-content-between">
+                    <div class="d-flex flex-column gap-3">
+                      <div class="d-flex flex-column">
                         <h3>Đơn đặt hàng chưa xử lý</h3>
-                        <p class="card-title text-nowrap mb-1">Số lượng: <?php echo $quantity_orders ?> </p>
-                        <a href="order_list.php" class="mt-2 btn btn-sm btn-outline-primary">Xem chi tiết</a>
+                        <p class="card-title mb-2">Số lượng: <?php echo $quantity_orders ?> </p>
+                        <a href="order_list.php" class="btn btn-sm btn-outline-primary w-100 w-sm-auto">Xem chi tiết</a>
                       </div>
                     </div>
                   </div>

@@ -70,8 +70,8 @@ $Products = mysqli_query($conn, $query);
                         Chúng tôi không ngừng đổi mới và sáng tạo”.</p>
                 </div>
             </div>
-            <div>
-                <img src="img/instagram/anh2.jpg" alt="" width="500" height="400" hspace="10%">
+            <div class="col-lg-6 col-md-6">
+                <img src="img/instagram/anh2.jpg" alt="" class="img-fluid" style="max-width: 100%; height: auto;">
             </div>
         </div>
     </div>

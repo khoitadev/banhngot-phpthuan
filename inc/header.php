@@ -47,6 +47,9 @@ $user = ((isset($_SESSION['user']))) ? $_SESSION['user'] : [];
     <!-- Offcanvas Menu Begin -->
     <div class="offcanvas-menu-overlay"></div>
     <div class="offcanvas-menu-wrapper">
+        <div class="offcanvas__close">
+            <i class="fa fa-times"></i>
+        </div>
         <div class="offcanvas__cart">
             <div class="offcanvas__cart__links">
                 <a href="#" class="search-switch"><img src="img/icon/search.png" alt=""></a>
